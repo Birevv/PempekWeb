@@ -394,11 +394,53 @@
           </li>
         </ul>
         <a
-          class="bg-primary text-on-primary font-button text-button px-6 py-3 rounded-lg hover:brightness-110 transition-all active:scale-95 opacity-90 transition-transform"
+          class="hidden md:inline-flex bg-primary text-on-primary font-button text-button px-6 py-3 rounded-lg hover:brightness-110 transition-all active:scale-95 opacity-90 transition-transform"
           href="#kontak"
         >
           Order Now
         </a>
+        <button
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+          aria-label="Buka menu navigasi"
+          class="inline-flex md:hidden h-11 w-11 items-center justify-center rounded-lg border border-stone-700 text-white hover:bg-stone-900 transition-colors active:scale-95"
+          id="mobile-menu-button"
+          type="button"
+        >
+          <span class="material-symbols-outlined text-3xl">menu</span>
+        </button>
+      </div>
+      <div
+        class="hidden md:hidden absolute left-0 top-full w-full border-t border-stone-800 bg-stone-950 px-6 pb-5 pt-3 shadow-lg"
+        id="mobile-menu"
+      >
+        <div class="max-w-[1200px] mx-auto flex flex-col gap-1">
+          <a
+            class="rounded-lg px-4 py-3 font-nav-link text-nav-link text-orange-500 hover:bg-stone-900 transition-colors"
+            href="#"
+            >Beranda</a
+          >
+          <a
+            class="rounded-lg px-4 py-3 font-nav-link text-nav-link text-stone-300 hover:bg-stone-900 hover:text-white transition-colors"
+            href="#tentang"
+            >About</a
+          >
+          <a
+            class="rounded-lg px-4 py-3 font-nav-link text-nav-link text-stone-300 hover:bg-stone-900 hover:text-white transition-colors"
+            href="#menu"
+            >Menu</a
+          >
+          <a
+            class="rounded-lg px-4 py-3 font-nav-link text-nav-link text-stone-300 hover:bg-stone-900 hover:text-white transition-colors"
+            href="#kontak"
+            >Contact</a
+          >
+          <a
+            class="mt-3 inline-flex justify-center rounded-lg bg-primary px-6 py-3 font-button text-button text-on-primary transition-all hover:brightness-110 active:scale-95"
+            href="#kontak"
+            >Order Now</a
+          >
+        </div>
       </div>
     </nav>
     <main class="mt-[80px]">
@@ -909,6 +951,62 @@
         const prefersReducedMotion = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
         ).matches;
+        const nav = document.querySelector("body > nav");
+        const mobileMenuButton = document.querySelector("#mobile-menu-button");
+        const mobileMenu = document.querySelector("#mobile-menu");
+        const mobileMenuIcon = mobileMenuButton?.querySelector(
+          ".material-symbols-outlined",
+        );
+
+        const setMobileMenuOpen = (isOpen) => {
+          if (!mobileMenu || !mobileMenuButton) {
+            return;
+          }
+
+          mobileMenu.classList.toggle("hidden", !isOpen);
+          mobileMenuButton.setAttribute("aria-expanded", String(isOpen));
+          mobileMenuButton.setAttribute(
+            "aria-label",
+            isOpen ? "Tutup menu navigasi" : "Buka menu navigasi",
+          );
+
+          if (mobileMenuIcon) {
+            mobileMenuIcon.textContent = isOpen ? "close" : "menu";
+          }
+        };
+
+        mobileMenuButton?.addEventListener("click", () => {
+          const isOpen =
+            mobileMenuButton.getAttribute("aria-expanded") === "true";
+
+          setMobileMenuOpen(!isOpen);
+        });
+
+        mobileMenu?.querySelectorAll("a").forEach((link) => {
+          link.addEventListener("click", () => setMobileMenuOpen(false));
+        });
+
+        document.addEventListener("click", (event) => {
+          if (
+            mobileMenuButton?.getAttribute("aria-expanded") === "true" &&
+            nav &&
+            !nav.contains(event.target)
+          ) {
+            setMobileMenuOpen(false);
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            setMobileMenuOpen(false);
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (window.innerWidth >= 768) {
+            setMobileMenuOpen(false);
+          }
+        });
 
         if (prefersReducedMotion) {
           return;
@@ -916,7 +1014,6 @@
 
         document.documentElement.classList.add("motion-ready");
 
-        const nav = document.querySelector("body > nav");
         const updateNavState = () => {
           nav?.classList.toggle("nav-scrolled", window.scrollY > 16);
         };
